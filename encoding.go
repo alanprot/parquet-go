@@ -58,6 +58,8 @@ var (
 		format.ByteStreamSplit:      &ByteStreamSplit,
 	}
 
+	extraEncodings = make(map[format.Encoding]encoding.Encoding)
+
 	// Table indexing RLE encodings for repetition and definition levels of
 	// all supported bit widths.
 	levelEncodingsRLE = [...]rle.Encoding{
@@ -83,6 +85,18 @@ var (
 	}
 )
 
+func RegisterEncoding(enc encoding.Encoding) bool {
+	ns := encoding.NotSupported{}
+	if enc == ns {
+		return false
+	}
+	if LookupEncoding(enc.Encoding()) != ns {
+		return false
+	}
+	extraEncodings[enc.Encoding()] = enc
+	return true
+}
+
 func isDictionaryEncoding(encoding encoding.Encoding) bool {
 	return isDictionaryFormat(encoding.Encoding())
 }
@@ -96,6 +110,9 @@ func isDictionaryFormat(encoding format.Encoding) bool {
 // The function never returns nil. If the encoding is not supported,
 // encoding.NotSupported is returned.
 func LookupEncoding(enc format.Encoding) encoding.Encoding {
+	if enc, ok := extraEncodings[enc]; ok {
+		return enc
+	}
 	if enc >= 0 && int(enc) < len(encodings) {
 		if e := encodings[enc]; e != nil {
 			return e
