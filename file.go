@@ -775,6 +775,10 @@ func (f *FilePages) ReadDictionary() (Dictionary, error) {
 	return f.dictionary, nil
 }
 
+func (f *FilePages) SetDictionary(dict Dictionary) {
+	f.dictionary = dict
+}
+
 // ReadPages reads the next from from f.
 func (f *FilePages) ReadPage() (Page, error) {
 	if f.chunk == nil {
